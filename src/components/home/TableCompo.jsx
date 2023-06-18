@@ -1,9 +1,9 @@
-import { useState, useContext } from 'react';
+import { useState, useContext, useEffect } from 'react';
 
-import {Button,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableFooter, TablePagination, Paper} from '@mui/material';
+import {Button,Table, TableBody, TableCell, TableContainer, TableHead, TableRow, TableFooter, TablePagination, Paper, IconButton} from '@mui/material';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 // components
-import {students} from "../../constants/studData.js";
 import { DataContext } from '../../context/DataProvider';
 import DetailsDialog from "./DetailsDialog";
 
@@ -15,14 +15,22 @@ const TableCompo=()=>{
   const {text}=useContext(DataContext);
   const {alpha}=useContext(DataContext);
   const {alphaClicked}=useContext(DataContext);
+  const {formDataList, setFormDataList}=useContext(DataContext);
 
-
+// console.log(formDataList);
   const [open, setOpen]=useState(false);
   const [comments, setComments]=useState();
   const [selectedRows, setSelectedRows] = useState([]);
 
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const [page, setPage] = useState(0);
+
+  useEffect(() => {
+    const storedFormData = localStorage.getItem('formData');
+    if (storedFormData) {
+      setFormDataList(JSON.parse(storedFormData));
+    }
+  }, []);
 
   const handlePageChange = (event, newPage) => {
     setPage(newPage);
@@ -42,6 +50,13 @@ const TableCompo=()=>{
       }
     });
   }
+
+  const handleDelete = (id) => {
+    const updatedFormDataList = formDataList.filter((formData) => formData.id !== id);
+    setFormDataList(updatedFormDataList);
+    localStorage.setItem('formData', JSON.stringify(updatedFormDataList));
+    console.log(updatedFormDataList);
+  };
 
   const openDialog=(student)=>{
     setOpen(true);
@@ -101,21 +116,21 @@ const TableCompo=()=>{
 
   const sortByFinalG=()=>{
     if(finalG.oneTen){
-      return students.sort(oneTenFun)
+      return formDataList.sort(oneTenFun)
     }else if(finalG.tenOne){
-      return students.sort(tenOneFun)
+      return formDataList.sort(tenOneFun)
     }else{
-      return students.sort(resetFun)
+      return formDataList.sort(resetFun)
     }
   }
 
   const sortByAlpha=()=>{
     if(alpha.az){
-      return students.sort(azFun)
+      return formDataList.sort(azFun)
     }else if(alpha.za){
-      return students.sort(zaFun)
+      return formDataList.sort(zaFun)
     }else{
-      return students.sort(resetFun)
+      return formDataList.sort(resetFun)
     }
   }
 
@@ -129,19 +144,24 @@ const TableCompo=()=>{
         > 
         { student.name.toLowerCase().includes(text.toLowerCase()) ?
         <>
-          <TableCell align="right">{student.id}</TableCell>
+          {/* <TableCell align="right">{student.id}</TableCell> */}
           <TableCell align="right">{selectedRows.find(stateId=>stateId === student.id)?student.name.toUpperCase():student.name}</TableCell>
           <TableCell align="right">{student.ticketNo}</TableCell>
           {/* <TableCell align="right">{student.ticketTopic}</TableCell> */}
-          {/* <TableCell align="right">{student.ratingGrade}</TableCell>
-          <TableCell align="right">{student.examGrade}</TableCell> */}
+          <TableCell align="right">{student.examGrade}</TableCell>
+          <TableCell align="right">{student.ratingGrade}</TableCell>
           <TableCell align="right">{Math.round((0.6*student.examGrade)+(0.4*student.ratingGrade))}</TableCell>
           <TableCell align="right">{Math.round((0.6*student.examGrade)+(0.4*student.ratingGrade))>=4?"Passed":"Failed"}</TableCell>
           <TableCell align="right">
             <Button style={{background:"#71C9CE", color:"#fff"}} onClick={()=>openDialog(student)} value={student}>
               Details
             </Button>
-          </TableCell>   
+          </TableCell> 
+          <TableCell align="right">
+            <IconButton onClick={() => handleDelete(student.id)}  style={{color:"#FF0000", marginRight:15}}>
+              <DeleteIcon/>
+            </IconButton>  
+          </TableCell> 
         </>
         :null
         }
@@ -152,17 +172,17 @@ const TableCompo=()=>{
   const statusChecking=()=>{
     if(status.pass && status.fail){
       alphaClicked?sortByAlpha():sortByFinalG();
-      return students.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+      return formDataList.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map(student=>studentMapping(student)) 
     }else if(status.pass && !status.fail){
       alphaClicked?sortByAlpha():sortByFinalG();
-      return students.filter((student)=>(
+      return formDataList.filter((student)=>(
       (Math.round((0.6*student.examGrade)+(0.4*student.ratingGrade))>=4)))
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map(student=>studentMapping(student)) 
     }else{
       alphaClicked?sortByAlpha():sortByFinalG();
-      return students.filter((student)=>(
+      return formDataList.filter((student)=>(
       (Math.round((0.6*student.examGrade)+(0.4*student.ratingGrade))<4)))
       .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
       .map(student=>studentMapping(student)) 
@@ -174,15 +194,16 @@ const TableCompo=()=>{
       <Table>
         <TableHead style={{backgroundColor:"#A6E3E9"}}>
           <TableRow>
-            <TableCell align="right">Serial No. </TableCell>
+            {/* <TableCell align="right">Serial No. </TableCell> */}
             <TableCell align="right">Name</TableCell>
             <TableCell align="right">Ticket Number</TableCell>
-            {/* <TableCell align="right">Ticket Topic</TableCell>
+            {/* <TableCell align="right">Ticket Topic</TableCell> */}
+             <TableCell align="right">Exam Grade</TableCell>
             <TableCell align="right">Rating Grade</TableCell>
-            <TableCell align="right">Exam Grade</TableCell> */}
             <TableCell align="right">Final Grade</TableCell>
             <TableCell align="right">Status</TableCell>
             <TableCell align="right" style={{paddingRight:30}}>Details</TableCell>
+            <TableCell align="right" style={{paddingRight:30}}>Delete</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
@@ -192,7 +213,7 @@ const TableCompo=()=>{
           <TableRow>
             <TablePagination
               rowsPerPageOptions={[5, 10, 25, 100]}
-              count={students.length}
+              count={formDataList.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handlePageChange}

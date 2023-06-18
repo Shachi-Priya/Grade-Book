@@ -1,8 +1,10 @@
+import { useContext, useEffect } from 'react';
+
 import {Box, Typography, Button, styled} from '@mui/material';
 import Plot from 'react-plotly.js';
-import {students} from "../../constants/studData.js";
+import { DataContext } from '../../context/DataProvider';
 import { Link } from 'react-router-dom';
-import HideImageIcon from '@mui/icons-material/HideImage';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 
 // import './Styles.css'
 
@@ -20,54 +22,64 @@ const StyledButton = styled(Button)({
 });
 
 const Stats=()=>{
-    const layout = {
+
+  const {formDataList, setFormDataList}=useContext(DataContext);
+
+  useEffect(() => {
+    const storedFormData = localStorage.getItem('formData');
+    if (storedFormData) {
+      setFormDataList(JSON.parse(storedFormData));
+    }
+  }, []);
+
+  const layout = {
     title: 'Grade Distribution',
     height: 430,
     width: 380
   };
 
-    let p=0;
-    let f=0;
-    let all=0;
-    let grade;
-    let a=0,b=0,c=0,d=0,e=0;
-    let avg=0;
-    let max=-1,min=11;
-    for(let x in students){
-        all=all+1;
-       grade=Math.round((0.6*students[x].examGrade)+(0.4*students[x].ratingGrade));
-       grade>=4?p=p+1:f=f+1;
-       if(grade>=0&&grade<2){a+=1};
-       if(grade>=2&&grade<4){b+=1};
-       if(grade>=4&&grade<6){c+=1};
-       if(grade>=6&&grade<8){d+=1};
-       if(grade>=8&&grade<10){e+=1};
-       if(grade>max){max=grade};
-       if(grade<min){min=grade};
-       
-    }
-    avg=(a+b+c+d+e)/5;
-   
-    const data = [
-      {
-        values: [a,b,c,d,e],
-        labels: ['0-2','2-4', '4-6', '6-8','8-10'],
-        type: 'pie',
-        hole: 0.5,
-        marker: {
-          colors: ['red', 'orange','#FF8C00','yellow',"Green"]
-        }
+  let p=0;
+  let f=0;
+  let all=0;
+  let grade;
+  let a=0,b=0,c=0,d=0,e=0;
+  let avg=0;
+  let max=-1,min=11;
+  for(let x in formDataList){
+      all=all+1;
+      grade=Math.round((0.6*formDataList[x].examGrade)+(0.4*formDataList[x].ratingGrade));
+      grade>=4?p=p+1:f=f+1;
+      if(grade>=0&&grade<2){a+=1};
+      if(grade>=2&&grade<4){b+=1};
+      if(grade>=4&&grade<6){c+=1};
+      if(grade>=6&&grade<8){d+=1};
+      if(grade>=8&&grade<10){e+=1};
+      if(grade>max){max=grade};
+      if(grade<min){min=grade};
+      
+  }
+  avg=(a+b+c+d+e)/5;
+  
+  const data = [
+    {
+      values: [a,b,c,d,e],
+      labels: ['0-2','2-4', '4-6', '6-8','8-10'],
+      type: 'pie',
+      hole: 0.5,
+      marker: {
+        colors: ['red', 'orange','#FF8C00','yellow',"Green"]
       }
-    ];
+    }
+  ];
   
       return(
         <>
         <Box style={{display:"flex", justifyContent: "center"}}>
           <Link to="/">
             <StyledButton 
-              startIcon={<HideImageIcon />}
+              startIcon={<ArrowBackIcon />}
             >
-              Hide Statistics
+              Back To Home Page
             </StyledButton>
           </Link>
         </Box>
@@ -84,17 +96,17 @@ const Stats=()=>{
       </thead>
       <tbody>
         <tr id="stats">
-          <td id="stats">Total Students</td>
+          <td id="stats">Total formDataList</td>
           <td id="stats">{all}</td>
         </tr>
 
         <tr id="stats">
-          <td id="stats">Passed Students</td>
+          <td id="stats">Passed formDataList</td>
           <td id="stats">{p}</td>
         </tr>
 
         <tr id="stats">
-          <td id="stats">Failed Students</td>
+          <td id="stats">Failed formDataList</td>
           <td id="stats">{f}</td>
         </tr>
         <tr id="stats">

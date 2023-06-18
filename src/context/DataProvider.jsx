@@ -1,4 +1,5 @@
 import { createContext, useState } from "react";
+import {students} from '../constants/studData.js';
 
 
 export const DataContext=createContext(null);
@@ -11,6 +12,7 @@ const DataProvider=({children})=>{
     const [alpha, setAlpha]=useState({az:false, za:false, reset:true});
     const [alphaClicked, setAlphaClicked]=useState(true);
     const [text, setText]=useState("");
+    const [formDataList, setFormDataList] = useState(students);
     
     return(
         <DataContext.Provider value={{
@@ -23,7 +25,9 @@ const DataProvider=({children})=>{
             alphaClicked,
             setAlphaClicked,
             text,
-            setText
+            setText,
+            formDataList,
+            setFormDataList
         }}>
             {children}
         </DataContext.Provider>

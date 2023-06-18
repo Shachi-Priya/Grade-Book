@@ -6,7 +6,6 @@ import RestartAltIcon from '@mui/icons-material/RestartAlt';
 
 //components
 import Search from "./Search";
-import AddStudent from "./AddStudent";
 import TableCompo from "./TableCompo";
 import { DataContext } from '../../context/DataProvider';
 
@@ -42,7 +41,9 @@ const Filter=()=>{
     const {setStatus}=useContext(DataContext);
     const {setFinalG}=useContext(DataContext);
     const {setAlpha}=useContext(DataContext);
-    const {setAlphaClicked}=useContext(DataContext);   
+    const {setAlphaClicked}=useContext(DataContext); 
+    const {formDataList, setFormDataList}=useContext(DataContext);
+  
     
     const [anchorElStatus, setAnchorElStatus] = useState(null);
     const openStatus = Boolean(anchorElStatus);
